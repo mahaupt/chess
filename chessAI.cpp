@@ -11,7 +11,9 @@
 #include "move.hpp"
 #include "point.hpp"
 #include <algorithm>
+#include <chrono>
 #include <cstdlib>
+#include <stdexcept>
 
 
 namespace {
@@ -20,26 +22,69 @@ int getCenterBonus(const Point &point) {
     int rankDistance = std::abs(point.getY() * 2 - 7);
     return 14 - fileDistance - rankDistance;
 }
+
+class SearchTimeout : public std::runtime_error {
+public:
+    SearchTimeout(): std::runtime_error("search timeout") {}
+};
 }
 
-ChessAI::ChessAI():startEbene(2), nodesEvaluated(0)  {};
+ChessAI::ChessAI():startEbene(1), completedDepth(0), nodesEvaluated(0), timeBudgetSeconds(2.0)  {};
 
 Move ChessAI::getNextMove(CBoard & board, int color) {
-    startEbene = 5;
+    completedDepth = 0;
     nodesEvaluated = 0;
-    Move move = Move();
-    doAllMoves(board, color, startEbene, move);
-    return move;
+    searchDeadline = std::chrono::steady_clock::now() + std::chrono::duration_cast<std::chrono::steady_clock::duration>(std::chrono::duration<double>(timeBudgetSeconds));
+    
+    Move bestMove = Move();
+    
+    for (int depth = 1; ; depth++) {
+        Move depthMove = Move();
+        startEbene = depth;
+        
+        try {
+            doAllMoves(board, color, startEbene, depthMove);
+            bestMove = depthMove;
+            completedDepth = depth;
+        } catch (const SearchTimeout&) {
+            break;
+        }
+        
+        if (std::chrono::steady_clock::now() >= searchDeadline) {
+            break;
+        }
+    }
+    
+    return bestMove;
 }
 
 
 int ChessAI::getSearchDepth() const {
-    return startEbene;
+    return completedDepth;
 }
 
 
 unsigned long long ChessAI::getNodesEvaluated() const {
     return nodesEvaluated;
+}
+
+
+double ChessAI::getTimeBudgetSeconds() const {
+    return timeBudgetSeconds;
+}
+
+
+void ChessAI::setTimeBudgetSeconds(double seconds) {
+    if (seconds > 0) {
+        timeBudgetSeconds = seconds;
+    }
+}
+
+
+void ChessAI::checkSearchTime() {
+    if (std::chrono::steady_clock::now() >= searchDeadline) {
+        throw SearchTimeout();
+    }
 }
 
 
@@ -73,6 +118,7 @@ void ChessAI::sortMoves(CBoard & board, std::vector< Move > & moves) {
 
 int ChessAI::doAllMoves(CBoard & board, int color, int ebenen, Move & savemove, int alpha, int beta) {
     nodesEvaluated++;
+    checkSearchTime();
     
     if (ebenen == 0) {
         return board.evaluateBoard(color);
@@ -100,7 +146,13 @@ int ChessAI::doAllMoves(CBoard & board, int color, int ebenen, Move & savemove, 
         Move & nextmove = moves[i];
         nextmove.doMove(board);
         Move move = Move();
-        int value = -doAllMoves(board, (color==0)?1:0 , ebenen -1, move, -beta, -bestValue);
+        int value = 0;
+        try {
+            value = -doAllMoves(board, (color==0)?1:0 , ebenen -1, move, -beta, -bestValue);
+        } catch (const SearchTimeout&) {
+            nextmove.reverseMove(board);
+            throw;
+        }
         nextmove.reverseMove(board);
         
         if (value > bestValue) {

@@ -131,7 +131,8 @@ bool CGame::move() {
         std::cout << "Computer searched " << cai.getSearchDepth()
                   << " plies, evaluated " << cai.getNodesEvaluated()
                   << " nodes in " << elapsed.count()
-                  << " seconds (" << nodesPerSecond << " nodes/sec)" << std::endl;
+                  << " seconds of a " << cai.getTimeBudgetSeconds()
+                  << " second budget (" << nodesPerSecond << " nodes/sec)" << std::endl;
 
         Move stdmove = Move();
         if (targetmove.compareTo(stdmove)) { std::cout << "Error: no move!" << std::endl;return false; }
