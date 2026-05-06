@@ -63,6 +63,21 @@ Computer searched 6 plies, evaluated 1094175 nodes in 3.00029 seconds of a 3 sec
 Transposition table: 1094167 probes, 188189 hits, 160434 exact hits, 24435 bound cutoffs, 909293 stores
 ```
 
+Run the Python benchmark suite:
+
+```sh
+python3 scripts/benchmark.py --time 1
+```
+
+The script runs several `--bestmove` positions, prints depth, nodes, speed and
+transposition table hit rate, and checks known best moves where available.
+
+You can also write the detailed results to JSON:
+
+```sh
+python3 scripts/benchmark.py --time 1 --json benchmark-results.json
+```
+
 ## Perft
 
 Run a perft node count from a position:
