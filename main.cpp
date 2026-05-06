@@ -1,6 +1,7 @@
 #include "benchmark.hpp"
 #include "game.hpp"
 #include "perft.hpp"
+#include "uci.hpp"
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -13,10 +14,13 @@ int main(int argc, char * argv[])
     std::string bestMoveFEN;
     int perftDepth = -1;
     bool perftDivide = false;
+    bool uciMode = false;
     double timeBudgetSeconds = 3.0;
     for (int i = 1; i < argc; i++) {
         std::string argument = argv[i];
-        if (argument == "--fen" && i + 1 < argc) {
+        if (argument == "--uci") {
+            uciMode = true;
+        } else if (argument == "--fen" && i + 1 < argc) {
             fen = argv[++i];
         } else if (argument == "--bestmove" && i + 1 < argc) {
             bestMoveFEN = argv[++i];
@@ -45,6 +49,7 @@ int main(int argc, char * argv[])
             std::cout << "       chess --bestmove \"<position|startpos>\" [--time seconds]" << std::endl;
             std::cout << "       chess --perft \"<position|startpos>\" <depth>" << std::endl;
             std::cout << "       chess --perft-divide \"<position|startpos>\" <depth>" << std::endl;
+            std::cout << "       chess --uci" << std::endl;
             return 0;
         } else {
             std::cerr << "Unknown argument: " << argument << std::endl;
@@ -52,8 +57,13 @@ int main(int argc, char * argv[])
             std::cerr << "       chess --bestmove \"<position|startpos>\" [--time seconds]" << std::endl;
             std::cerr << "       chess --perft \"<position|startpos>\" <depth>" << std::endl;
             std::cerr << "       chess --perft-divide \"<position|startpos>\" <depth>" << std::endl;
+            std::cerr << "       chess --uci" << std::endl;
             return 1;
         }
+    }
+    
+    if (uciMode) {
+        return runUci();
     }
     
     if (!perftFEN.empty()) {

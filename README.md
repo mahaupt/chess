@@ -78,6 +78,37 @@ You can also write the detailed results to JSON:
 python3 scripts/benchmark.py --time 1 --json benchmark-results.json
 ```
 
+## UCI
+
+Start the engine in UCI mode:
+
+```sh
+./build/chess --uci
+```
+
+Supported commands:
+
+```text
+uci
+isready
+ucinewgame
+position startpos
+position startpos moves e2e4 e7e5
+position fen <fen>
+position fen <fen> moves e2e4 e7e5
+go movetime 1000
+quit
+```
+
+This is enough for simple UCI matches. The lightweight local runner uses
+Stockfish and `python-chess`:
+
+```sh
+brew install stockfish
+python3 -m pip install chess
+python3 scripts/play_match.py --games 20 --time 1 --stockfish-skill 1 --pgn games.pgn
+```
+
 ## Perft
 
 Run a perft node count from a position:

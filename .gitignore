@@ -9,3 +9,5 @@ Makefile
 .DS_Store
 .cproject
 .project
+*.pgn
+venv/

@@ -26,6 +26,7 @@ add_executable(chess
     perft.cpp
     point.cpp
     searchStats.cpp
+    uci.cpp
 )
 
 target_include_directories(chess PRIVATE
