@@ -1,4 +1,3 @@
-[![Build Status](https://travis-ci.org/cbacon93/chess.svg?branch=master)](https://travis-ci.org/cbacon93/chess)
 # chess
 Basic Chess program with AI
 
@@ -12,6 +11,8 @@ cmake --build .
 ```
 
 The executable is created at `build/chess`.
+
+The project builds as C++23.
 
 ## Classes
 ### CBoard

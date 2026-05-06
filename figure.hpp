@@ -2,8 +2,9 @@
 #include <vector>
 #include <string>
 
+#include "movingPrefab.hpp"
+
 class Move;
-class MovingPrefab;
 class Point;
 class CBoard;
 class EnpassantFlag;

@@ -10,10 +10,9 @@
 #include <vector>
 
 class EnpassantFlag;
-
-#include "point.hpp"
-#include "move.hpp"
-#include "board.hpp"
+class Point;
+class Move;
+class CBoard;
 
 
 class MovingPrefab {
