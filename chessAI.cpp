@@ -115,19 +115,10 @@ int ChessAI::doAllMoves(CBoard & board, int color, int ebenen, Move & savemove, 
             }
             
             //check if figure is king
-            if (!blackking || !whiteking) {
-                bool isking = false;
-                CFKing * cfking = 0;
-                try {
-                    cfking = dynamic_cast<CFKing*>(figure);
-                    if (cfking != 0) {
-                        isking = true;
-                    }
-                } catch (...) {}
-                
-                if (isking) {
-                    if (cfking->getColor() == 0) blackking = true;
-                    if (cfking->getColor() == 1) whiteking = true;
+            if (figure != 0 && (!blackking || !whiteking)) {
+                if (figure->getType() == FigureType::King) {
+                    if (figure->getColor() == 0) blackking = true;
+                    if (figure->getColor() == 1) whiteking = true;
                 }
             }
 

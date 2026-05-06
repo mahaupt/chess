@@ -6,6 +6,7 @@
 CFRook::CFRook(int color) {
 	m_color = color;
     m_figureValue = 5;
+    m_type = FigureType::Rook;
     m_sign = "\u265C";
 
     m_movesList.push_back(MovingPrefab(1, 0, true));

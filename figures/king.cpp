@@ -4,7 +4,7 @@
 CFKing::CFKing(int color) {
 	this->m_color = color;
     m_figureValue = 10000;
-    
+    m_type = FigureType::King;
     this->m_sign = "\u265A";
     
     m_movesList.push_back(MovingPrefab(0, 1));

@@ -5,6 +5,7 @@
 CFPawn::CFPawn(int color) {
 	m_color = color;
     m_figureValue = 1;
+    m_type = FigureType::Pawn;
     m_sign = "\u265F";
     
     if (m_color == 0) {

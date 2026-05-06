@@ -5,6 +5,7 @@
 CFKnight::CFKnight(int color) {
     m_color = color;
     m_figureValue = 3;
+    m_type = FigureType::Knight;
     m_sign = "\u265E";
 
     m_movesList.push_back(MovingPrefab(2, 1));
