@@ -56,6 +56,16 @@ int getPieceSquareBonus(const CFigure* figure, int x, int y) {
 bool isInsideBoard(int x, int y) {
     return x >= 0 && x < 8 && y >= 0 && y < 8;
 }
+
+
+std::uint64_t mixHash(std::uint64_t value) {
+    value ^= value >> 30;
+    value *= 0xbf58476d1ce4e5b9ULL;
+    value ^= value >> 27;
+    value *= 0x94d049bb133111ebULL;
+    value ^= value >> 31;
+    return value;
+}
 }
 
 
@@ -183,6 +193,28 @@ void CBoard::copyFrom(const CBoard & board) {
             m_board[x][y] = figure != 0 ? figure->clone() : 0;
         }
     }
+}
+
+
+std::uint64_t CBoard::hash() const {
+    std::uint64_t value = mixHash((std::uint64_t)m_sideToMove + 1);
+    
+    for (int x = 0; x < 8; x++)
+    {
+        for (int y = 0; y < 8; y++)
+        {
+            const CFigure* figure = m_board[x][y];
+            if (figure != 0) {
+                std::uint64_t pieceValue = (std::uint64_t)figure->getType();
+                pieceValue = pieceValue * 2 + (std::uint64_t)figure->getColor();
+                pieceValue = pieceValue * 2 + (figure->hasMoved() ? 1ULL : 0ULL);
+                pieceValue = pieceValue * 64 + (std::uint64_t)(y * 8 + x);
+                value ^= mixHash(pieceValue + 0x9e3779b97f4a7c15ULL);
+            }
+        }
+    }
+    
+    return value;
 }
 
 

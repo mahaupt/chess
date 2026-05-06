@@ -33,6 +33,7 @@ struct RootSearchResult {
     Move move;
     int value = -99999999;
     unsigned long long nodesEvaluated = 0;
+    ChessAI::TranspositionStats transpositionStats;
     bool completed = false;
     int moveIndex = 0;
 };
@@ -43,13 +44,16 @@ bool isSameMove(const Move &left, const Move &right) {
         && left.getTo().getX() == right.getTo().getX()
         && left.getTo().getY() == right.getTo().getY();
 }
+
+constexpr std::size_t transpositionTableSize = 1 << 17;
 }
 
-ChessAI::ChessAI():startEbene(1), completedDepth(0), nodesEvaluated(0), timeBudgetSeconds(3.0)  {};
+ChessAI::ChessAI():startEbene(1), completedDepth(0), nodesEvaluated(0), timeBudgetSeconds(3.0), transpositionTable(transpositionTableSize)  {};
 
 Move ChessAI::getNextMove(CBoard & board, int color) {
     completedDepth = 0;
     nodesEvaluated = 0;
+    transpositionStats = TranspositionStats();
     searchDeadline = std::chrono::steady_clock::now() + std::chrono::duration_cast<std::chrono::steady_clock::duration>(std::chrono::duration<double>(timeBudgetSeconds));
     
     Move bestMove = Move();
@@ -113,6 +117,7 @@ Move ChessAI::getNextMove(CBoard & board, int color) {
                 }
                 
                 result.nodesEvaluated = worker.nodesEvaluated;
+                result.transpositionStats = worker.transpositionStats;
                 return result;
             }));
         }
@@ -122,6 +127,11 @@ Move ChessAI::getNextMove(CBoard & board, int color) {
         for (int i = 0; i < futures.size(); i++) {
             RootSearchResult result = futures[i].get();
             nodesEvaluated += result.nodesEvaluated;
+            transpositionStats.probes += result.transpositionStats.probes;
+            transpositionStats.hits += result.transpositionStats.hits;
+            transpositionStats.exactHits += result.transpositionStats.exactHits;
+            transpositionStats.boundCutoffs += result.transpositionStats.boundCutoffs;
+            transpositionStats.stores += result.transpositionStats.stores;
             
             if (!result.completed) {
                 depthCompleted = false;
@@ -168,6 +178,11 @@ unsigned long long ChessAI::getNodesEvaluated() const {
 }
 
 
+const ChessAI::TranspositionStats & ChessAI::getTranspositionStats() const {
+    return transpositionStats;
+}
+
+
 double ChessAI::getTimeBudgetSeconds() const {
     return timeBudgetSeconds;
 }
@@ -183,6 +198,24 @@ void ChessAI::setTimeBudgetSeconds(double seconds) {
 void ChessAI::checkSearchTime() {
     if (std::chrono::steady_clock::now() >= searchDeadline) {
         throw SearchTimeout();
+    }
+}
+
+
+std::size_t ChessAI::getTranspositionIndex(std::uint64_t positionHash) const {
+    return positionHash & (transpositionTable.size() - 1);
+}
+
+
+void ChessAI::storeTransposition(std::uint64_t positionHash, int depth, int value, TranspositionBound bound) {
+    TranspositionEntry &entry = transpositionTable[getTranspositionIndex(positionHash)];
+    if (!entry.occupied || depth >= entry.depth) {
+        entry.key = positionHash;
+        entry.depth = depth;
+        entry.value = value;
+        entry.bound = bound;
+        entry.occupied = true;
+        transpositionStats.stores++;
     }
 }
 
@@ -223,6 +256,26 @@ int ChessAI::doAllMoves(CBoard & board, int color, int ebenen, Move & savemove, 
         return board.evaluateBoard(color);
     }
     
+    int originalAlpha = alpha;
+    std::uint64_t positionHash = board.hash() ^ ((std::uint64_t)color << 1);
+    transpositionStats.probes++;
+    TranspositionEntry &cachedValue = transpositionTable[getTranspositionIndex(positionHash)];
+    if (cachedValue.occupied && cachedValue.key == positionHash && cachedValue.depth >= ebenen) {
+        transpositionStats.hits++;
+        if (cachedValue.bound == TranspositionBound::Exact) {
+            transpositionStats.exactHits++;
+            return cachedValue.value;
+        }
+        if (cachedValue.bound == TranspositionBound::Lower && cachedValue.value >= beta) {
+            transpositionStats.boundCutoffs++;
+            return cachedValue.value;
+        }
+        if (cachedValue.bound == TranspositionBound::Upper && cachedValue.value <= alpha) {
+            transpositionStats.boundCutoffs++;
+            return cachedValue.value;
+        }
+    }
+    
     //get all moves
     std::vector< Move > moves = std::vector< Move >();
     board.getLegalMoves(color, moves);
@@ -230,8 +283,11 @@ int ChessAI::doAllMoves(CBoard & board, int color, int ebenen, Move & savemove, 
     //abort if no moves
     if (moves.size() <= 0) {
         if (board.isInCheck(color)) {
-            return -700000 - ebenen;
+            int value = -700000 - ebenen;
+            storeTransposition(positionHash, ebenen, value, TranspositionBound::Exact);
+            return value;
         }
+        storeTransposition(positionHash, ebenen, 0, TranspositionBound::Exact);
         return 0;
     }
     
@@ -258,7 +314,9 @@ int ChessAI::doAllMoves(CBoard & board, int color, int ebenen, Move & savemove, 
             bestValue = value;
             
             if (value >= beta)
+            {
                 break;
+            }
             
             //save move
             if (ebenen == startEbene) {
@@ -267,5 +325,12 @@ int ChessAI::doAllMoves(CBoard & board, int color, int ebenen, Move & savemove, 
         }
     }
     
+    TranspositionBound bound = TranspositionBound::Exact;
+    if (bestValue <= originalAlpha) {
+        bound = TranspositionBound::Upper;
+    } else if (bestValue >= beta) {
+        bound = TranspositionBound::Lower;
+    }
+    storeTransposition(positionHash, ebenen, bestValue, bound);
     return bestValue;
 }

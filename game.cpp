@@ -136,6 +136,12 @@ bool CGame::move() {
                   << " nodes in " << elapsed.count()
                   << " seconds of a " << cai.getTimeBudgetSeconds()
                   << " second budget (" << nodesPerSecond << " nodes/sec)" << std::endl;
+        const ChessAI::TranspositionStats & ttStats = cai.getTranspositionStats();
+        std::cout << "Transposition table: " << ttStats.probes << " probes, "
+                  << ttStats.hits << " hits, "
+                  << ttStats.exactHits << " exact hits, "
+                  << ttStats.boundCutoffs << " bound cutoffs, "
+                  << ttStats.stores << " stores" << std::endl;
 
         Move stdmove = Move();
         if (targetmove.compareTo(stdmove)) { std::cout << "Error: no move!" << std::endl;return false; }

@@ -1,5 +1,6 @@
 #pragma once
 #include <array>
+#include <cstdint>
 #include <vector>
 
 #include "point.hpp"
@@ -52,4 +53,5 @@ public:
     bool hasLegalMove(int color, EnpassantFlag* eflag = 0);
     void getLegalMoves(int color, std::vector<Move> & moves, EnpassantFlag* eflag = 0);
     void getLegalMoves(Point &point, int color, std::vector<Move> & moves, EnpassantFlag* eflag = 0);
+    std::uint64_t hash() const;
 };
