@@ -109,6 +109,12 @@ python3 -m pip install chess
 python3 scripts/play_match.py --games 20 --time 1 --stockfish-skill 1 --pgn games.pgn
 ```
 
+To estimate playing strength, limit Stockfish by Elo and run more games:
+
+```sh
+python3 scripts/play_match.py --games 100 --time 1 --stockfish-elo 1320 --pgn sf1320.pgn
+```
+
 ## Perft
 
 Run a perft node count from a position:

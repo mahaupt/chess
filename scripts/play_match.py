@@ -25,14 +25,17 @@ def open_engine(engine_module, command: list[str]):
         raise SystemExit(1)
 
 
-def configure_stockfish(engine, skill_level: int | None) -> None:
-    if skill_level is None:
-        return
-
+def configure_stockfish(engine, skill_level: int | None, elo: int | None) -> None:
     try:
-        engine.configure({"Skill Level": skill_level})
+        if elo is not None:
+            engine.configure({
+                "UCI_LimitStrength": True,
+                "UCI_Elo": elo,
+            })
+        elif skill_level is not None:
+            engine.configure({"Skill Level": skill_level})
     except Exception as error:
-        print(f"Warning: could not set Stockfish skill level: {error}", file=sys.stderr)
+        print(f"Warning: could not configure Stockfish strength: {error}", file=sys.stderr)
 
 
 def game_result_for_engine_error(board, error: Exception) -> str:
@@ -93,6 +96,7 @@ def main() -> int:
     parser.add_argument("--games", type=int, default=2, help="number of games to play")
     parser.add_argument("--time", type=float, default=1.0, help="seconds per move")
     parser.add_argument("--stockfish-skill", type=int, default=1, help="Stockfish Skill Level option")
+    parser.add_argument("--stockfish-elo", type=int, help="Stockfish limited Elo option")
     parser.add_argument("--pgn", type=Path, default=Path("match.pgn"), help="PGN output file")
     args = parser.parse_args()
 
@@ -105,17 +109,23 @@ def main() -> int:
     if args.stockfish_skill < 0 or args.stockfish_skill > 20:
         print("--stockfish-skill must be between 0 and 20", file=sys.stderr)
         return 1
+    if args.stockfish_elo is not None and (args.stockfish_elo < 1320 or args.stockfish_elo > 3190):
+        print("--stockfish-elo must be between 1320 and 3190", file=sys.stderr)
+        return 1
 
     chess, engine_module, pgn_module = import_chess()
 
     our_command = [args.engine, "--uci"]
     stockfish_command = [args.stockfish]
     our_name = "MyChess"
-    stockfish_name = f"Stockfish skill {args.stockfish_skill}"
+    if args.stockfish_elo is None:
+        stockfish_name = f"Stockfish skill {args.stockfish_skill}"
+    else:
+        stockfish_name = f"Stockfish Elo {args.stockfish_elo}"
 
     our_engine = open_engine(engine_module, our_command)
     stockfish_engine = open_engine(engine_module, stockfish_command)
-    configure_stockfish(stockfish_engine, args.stockfish_skill)
+    configure_stockfish(stockfish_engine, args.stockfish_skill, args.stockfish_elo)
 
     results = []
     try:
