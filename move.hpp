@@ -1,13 +1,12 @@
 #pragma once
 
 #include "point.hpp"
-#include "heapitem.hpp"
 
 class CFigure;
 class CBoard;
 class EnpassantFlag;
 
-class Move : public HeapItem
+class Move
 {
 private:
     Point from;
@@ -51,6 +50,4 @@ public:
     void setMoveValues(int val1, int val2) { moveValue1 = val1; moveValue2 = val2; }
     int getMoveValue1() { return moveValue1; }
     int getMoveValue2() { return moveValue2; }
-    
-    int heapCompareTo(Move & mv);
 };

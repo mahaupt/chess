@@ -8,7 +8,6 @@
 
 #pragma once
 #include <vector>
-#include "heap.hpp"
 
 class Move;
 class CBoard;
@@ -18,7 +17,7 @@ private:
     int startEbene;
     unsigned long long nodesEvaluated;
     int doAllMoves(CBoard & board, int color, int ebenen, Move & savemove, int alpha=-99999999, int beta=99999999);
-    void sortMoves(CBoard & board, std::vector< Move > & input, Heap < Move > & output);
+    std::vector<Move*> sortMoves(CBoard & board, std::vector< Move > & moves);
 public:
     ChessAI();
     Move getNextMove(CBoard & board, int color);

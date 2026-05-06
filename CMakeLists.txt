@@ -18,8 +18,6 @@ add_executable(chess
     figures/queen.cpp
     figures/rook.cpp
     game.cpp
-    heap.cpp
-    heapitem.cpp
     main.cpp
     move.cpp
     movingPrefab.cpp

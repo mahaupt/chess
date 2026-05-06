@@ -133,17 +133,6 @@ bool Move::compareTo (Move &move) {
     return false;
 }
 
-
-
-int Move::heapCompareTo(Move & mv) {
-    if (moveValue1 > mv.moveValue1 || (moveValue1 == mv.moveValue1 && moveValue2 > mv.moveValue2))
-        return -1;
-    if (moveValue1 < mv.moveValue1 || (moveValue1 == mv.moveValue1 && moveValue2 < mv.moveValue2))
-        return 1;
-    return 0;
-}
-
-
 Move::~Move() {
     deleteFigs();
 }

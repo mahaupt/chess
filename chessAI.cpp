@@ -10,6 +10,7 @@
 #include "board.hpp"
 #include "move.hpp"
 #include "point.hpp"
+#include <algorithm>
 
 
 ChessAI::ChessAI():startEbene(2), nodesEvaluated(0)  {};
@@ -60,12 +61,13 @@ bool ChessAI::playerIsCheck(CBoard & board, int player) {
 
 
 
-void ChessAI::sortMoves(CBoard & board, std::vector< Move > & input, Heap < Move > & output) {
+std::vector<Move*> ChessAI::sortMoves(CBoard & board, std::vector< Move > & moves) {
+    std::vector<Move*> sortedMoves = std::vector<Move*>();
+    sortedMoves.reserve(moves.size());
     
-    
-    for (int i=0; i < input.size(); i++) {
-        CFigure * tofig = board.getFigure(input[i].getTo());
-        CFigure * fromfig = board.getFigure(input[i].getFrom());
+    for (int i=0; i < moves.size(); i++) {
+        CFigure * tofig = board.getFigure(moves[i].getTo());
+        CFigure * fromfig = board.getFigure(moves[i].getFrom());
         
         int tovalue = 0;
         int fromvalue = 0;
@@ -76,9 +78,19 @@ void ChessAI::sortMoves(CBoard & board, std::vector< Move > & input, Heap < Move
             fromvalue = fromfig->getValue();
         }
         
-        input[i].setMoveValues(tovalue, tovalue-fromvalue);
-        output.insert(input[i]);
+        moves[i].setMoveValues(tovalue, tovalue-fromvalue);
+        sortedMoves.push_back(&moves[i]);
     }
+
+    std::sort(sortedMoves.begin(), sortedMoves.end(), [](Move* lhs, Move* rhs) {
+        if (lhs->getMoveValue1() != rhs->getMoveValue1()) {
+            return lhs->getMoveValue1() > rhs->getMoveValue1();
+        }
+
+        return lhs->getMoveValue2() > rhs->getMoveValue2();
+    });
+
+    return sortedMoves;
 }
 
 
@@ -128,14 +140,13 @@ int ChessAI::doAllMoves(CBoard & board, int color, int ebenen, Move & savemove, 
     }
     
     //Vorsortierung
-    Heap<Move> outmoves = Heap<Move>();
-    sortMoves(board, moves, outmoves);
+    std::vector<Move*> sortedMoves = sortMoves(board, moves);
     
     //do every move
     int bestValue = alpha;
     
-    while(outmoves.size() > 0) {
-        Move & nextmove = outmoves.removeFirst();
+    for (int i=0; i < sortedMoves.size(); i++) {
+        Move & nextmove = *sortedMoves[i];
         nextmove.doMove(board);
         Move move = Move();
         int value = -doAllMoves(board, (color==0)?1:0 , ebenen -1, move, -beta, -bestValue);
