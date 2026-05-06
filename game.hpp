@@ -17,7 +17,7 @@
 
 class CGame {
 public:
-    CGame(const std::string &fen = "");
+    CGame(const std::string &fen = "", double timeBudgetSeconds = 3.0);
     bool move();
     EnpassantFlag eflag;
     

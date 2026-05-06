@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_executable(chess
+    benchmark.cpp
     board.cpp
     chessAI.cpp
     enpassantflag.cpp
@@ -20,8 +21,11 @@ add_executable(chess
     game.cpp
     main.cpp
     move.cpp
+    moveFormat.cpp
     movingPrefab.cpp
+    perft.cpp
     point.cpp
+    searchStats.cpp
 )
 
 target_include_directories(chess PRIVATE

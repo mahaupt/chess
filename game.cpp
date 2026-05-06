@@ -7,11 +7,14 @@
 //
 
 #include "game.hpp"
+#include "searchStats.hpp"
 #include <chrono>
 #include <stdexcept>
 
 
-CGame::CGame(const std::string &fen) {
+CGame::CGame(const std::string &fen, double timeBudgetSeconds) {
+    cai.setTimeBudgetSeconds(timeBudgetSeconds);
+    
     if (fen.empty()) {
         m_board.setSideToMove(1);
     } else if (!m_board.loadFEN(fen)) {
@@ -133,20 +136,7 @@ bool CGame::move() {
         Move targetmove = cai.getNextMove(m_board, m_userTurn);
         auto end = std::chrono::steady_clock::now();
         std::chrono::duration<double> elapsed = end - start;
-        double nodesPerSecond = elapsed.count() > 0
-                                ? cai.getNodesEvaluated() / elapsed.count()
-                                : 0;
-        std::cout << "Computer searched " << cai.getSearchDepth()
-                  << " plies, evaluated " << cai.getNodesEvaluated()
-                  << " nodes in " << elapsed.count()
-                  << " seconds of a " << cai.getTimeBudgetSeconds()
-                  << " second budget (" << nodesPerSecond << " nodes/sec)" << std::endl;
-        const ChessAI::TranspositionStats & ttStats = cai.getTranspositionStats();
-        std::cout << "Transposition table: " << ttStats.probes << " probes, "
-                  << ttStats.hits << " hits, "
-                  << ttStats.exactHits << " exact hits, "
-                  << ttStats.boundCutoffs << " bound cutoffs, "
-                  << ttStats.stores << " stores" << std::endl;
+        printSearchStats(cai, elapsed.count(), std::cout);
 
         Move stdmove = Move();
         if (targetmove.compareTo(stdmove)) { std::cout << "Error: no move!" << std::endl;return false; }
