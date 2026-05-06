@@ -2,6 +2,16 @@
 # chess
 Basic Chess program with AI
 
+## Build
+
+```sh
+mkdir -p build
+cd build
+cmake ..
+cmake --build .
+```
+
+The executable is created at `build/chess`.
 
 ## Classes
 ### CBoard

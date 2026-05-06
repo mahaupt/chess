@@ -1,1 +1,7 @@
-g++ -o chess *.cpp figures/*.cpp
+#!/bin/sh
+set -e
+
+mkdir -p build
+cd build
+cmake ..
+cmake --build .

@@ -1,6 +1,11 @@
 chess
 chess.exe
+build/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
 *.swp
-
+.DS_Store
 .cproject
 .project
