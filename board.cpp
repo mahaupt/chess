@@ -1,6 +1,25 @@
 #include "board.hpp"
 
 
+const char* resetColor = "\033[0m";
+const char* lightSquare = "\033[48;5;238m";
+const char* darkSquare = "\033[48;5;22m";
+const char* whitePiece = "\033[38;5;231m";
+const char* blackPiece = "\033[38;5;214m";
+
+void printSquare(CFigure* figure, bool isLightSquare)
+{
+    std::cout << (isLightSquare ? lightSquare : darkSquare);
+    if (figure != 0) {
+        std::cout << (figure->getColor() == 1 ? whitePiece : blackPiece);
+        std::cout << " " << figure->getFigureSign() << " ";
+    } else {
+        std::cout << "   ";
+    }
+    std::cout << resetColor;
+}
+
+
 CBoard::CBoard( void )
 {
 	//clear board
@@ -68,11 +87,8 @@ void CBoard::printBoard(bool flipped) {
         for (int fileIndex = 0; fileIndex < 8; fileIndex++)
         {
             int file = flipped ? 7 - fileIndex : fileIndex;
-            if (m_board[file][rank] != 0) {
-                std::cout << " " << m_board[file][rank]->getFigureSign() << " |";
-            } else {
-                std::cout << "   |";
-            }
+            printSquare(m_board[file][rank], (file + rank) % 2 == 0);
+            std::cout << "|";
         }
         std::cout << " " << rank + 1 << std::endl;
         std::cout << border << std::endl;

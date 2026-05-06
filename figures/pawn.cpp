@@ -5,12 +5,7 @@
 CFPawn::CFPawn(int color) {
 	m_color = color;
     m_figureValue = 1;
-    
-    if (m_color == 0) {
-        m_sign = "\u265F";
-    } else {
-        m_sign = "\u2659";
-    }
+    m_sign = "\u265F";
     
     if (m_color == 0) {
         m_movesList.push_back(MovingPrefab(0, -1, false, false));
