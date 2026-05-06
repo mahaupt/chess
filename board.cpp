@@ -2,10 +2,10 @@
 
 
 const char* resetColor = "\033[0m";
-const char* lightSquare = "\033[48;5;238m";
-const char* darkSquare = "\033[48;5;22m";
+const char* lightSquare = "\033[48;5;250m";
+const char* darkSquare = "\033[48;5;240m";
 const char* whitePiece = "\033[38;5;231m";
-const char* blackPiece = "\033[38;5;214m";
+const char* blackPiece = "\033[38;5;16m";
 
 void printSquare(CFigure* figure, bool isLightSquare)
 {
