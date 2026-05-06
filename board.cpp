@@ -1,7 +1,9 @@
 #include "board.hpp"
 #include "enpassantflag.hpp"
+#include <cctype>
 #include <cstdlib>
 #include <iostream>
+#include <sstream>
 
 
 namespace {
@@ -65,6 +67,61 @@ std::uint64_t mixHash(std::uint64_t value) {
     value *= 0x94d049bb133111ebULL;
     value ^= value >> 31;
     return value;
+}
+
+
+CFigure* createFigureFromFEN(char symbol) {
+    int color = std::isupper(static_cast<unsigned char>(symbol)) ? 1 : 0;
+    
+    switch (std::tolower(static_cast<unsigned char>(symbol))) {
+        case 'p':
+            return new CFPawn(color);
+        case 'n':
+            return new CFKnight(color);
+        case 'b':
+            return new CFBishop(color);
+        case 'r':
+            return new CFRook(color);
+        case 'q':
+            return new CFQueen(color);
+        case 'k':
+            return new CFKing(color);
+    }
+    
+    return 0;
+}
+
+
+void deleteBoard(chessboardmap &board) {
+    for (int x = 0; x < 8; x++) {
+        for (int y = 0; y < 8; y++) {
+            delete board[x][y];
+            board[x][y] = 0;
+        }
+    }
+}
+
+
+bool isExpectedPiece(CFigure* figure, int color, FigureType type) {
+    return figure != 0 && figure->getColor() == color && figure->getType() == type;
+}
+
+
+bool enableCastlingRight(chessboardmap &board, char right) {
+    int color = std::islower(static_cast<unsigned char>(right)) ? 0 : 1;
+    int rank = color == 1 ? 0 : 7;
+    int rookFile = right == 'K' || right == 'k' ? 7 : 0;
+    
+    CFigure* king = board[4][rank];
+    CFigure* rook = board[rookFile][rank];
+    if (!isExpectedPiece(king, color, FigureType::King)
+        || !isExpectedPiece(rook, color, FigureType::Rook)) {
+        return false;
+    }
+    
+    king->setHasMoved(false);
+    rook->setHasMoved(false);
+    return true;
 }
 }
 
@@ -164,6 +221,101 @@ void CBoard::printBoard(bool flipped) {
 
     std::cout << "    " << files << std::endl;
     std::cout << std::endl;
+}
+
+
+bool CBoard::loadFEN(const std::string &fen) {
+    std::istringstream input(fen);
+    std::string placement;
+    std::string activeColor;
+    std::string castlingRights = "-";
+    std::string enpassantTarget;
+    std::string halfmoveClock;
+    std::string fullmoveNumber;
+    
+    if (!(input >> placement >> activeColor)) {
+        return false;
+    }
+    
+    input >> castlingRights >> enpassantTarget >> halfmoveClock >> fullmoveNumber;
+    
+    if (activeColor != "w" && activeColor != "b") {
+        return false;
+    }
+    
+    chessboardmap loadedBoard = {};
+    int rankIndex = 0;
+    int file = 0;
+    
+    for (char symbol : placement) {
+        if (symbol == '/') {
+            if (file != 8) {
+                deleteBoard(loadedBoard);
+                return false;
+            }
+            rankIndex++;
+            file = 0;
+            if (rankIndex > 7) {
+                deleteBoard(loadedBoard);
+                return false;
+            }
+            continue;
+        }
+        
+        if (std::isdigit(static_cast<unsigned char>(symbol))) {
+            int emptySquares = symbol - '0';
+            if (emptySquares < 1 || emptySquares > 8 || file + emptySquares > 8) {
+                deleteBoard(loadedBoard);
+                return false;
+            }
+            file += emptySquares;
+            continue;
+        }
+        
+        if (file >= 8) {
+            deleteBoard(loadedBoard);
+            return false;
+        }
+        
+        CFigure* figure = createFigureFromFEN(symbol);
+        if (figure == 0) {
+            deleteBoard(loadedBoard);
+            return false;
+        }
+        
+        figure->setHasMoved(true);
+        loadedBoard[file][7 - rankIndex] = figure;
+        file++;
+    }
+    
+    if (rankIndex != 7 || file != 8) {
+        deleteBoard(loadedBoard);
+        return false;
+    }
+    
+    if (castlingRights != "-") {
+        for (char right : castlingRights) {
+            if (right != 'K' && right != 'Q' && right != 'k' && right != 'q') {
+                deleteBoard(loadedBoard);
+                return false;
+            }
+            if (!enableCastlingRight(loadedBoard, right)) {
+                deleteBoard(loadedBoard);
+                return false;
+            }
+        }
+    }
+    
+    clearBoard();
+    m_sideToMove = activeColor == "w" ? 1 : 0;
+    for (int x = 0; x < 8; x++) {
+        for (int y = 0; y < 8; y++) {
+            m_board[x][y] = loadedBoard[x][y];
+            loadedBoard[x][y] = 0;
+        }
+    }
+    
+    return true;
 }
 
 

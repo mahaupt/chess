@@ -1,6 +1,7 @@
 #pragma once
 #include <array>
 #include <cstdint>
+#include <string>
 #include <vector>
 
 #include "point.hpp"
@@ -41,6 +42,7 @@ public:
     ~CBoard();
     
     void printBoard(bool flipped = false);
+    bool loadFEN(const std::string &fen);
     int getSideToMove() const;
     void setSideToMove(int color);
     void switchSideToMove();

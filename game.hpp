@@ -8,6 +8,7 @@
 
 #pragma once
 #include <iostream>
+#include <string>
 
 #include "board.hpp"
 #include "point.hpp"
@@ -16,7 +17,7 @@
 
 class CGame {
 public:
-    CGame();
+    CGame(const std::string &fen = "");
     bool move();
     EnpassantFlag eflag;
     

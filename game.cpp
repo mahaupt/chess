@@ -8,10 +8,15 @@
 
 #include "game.hpp"
 #include <chrono>
+#include <stdexcept>
 
 
-CGame::CGame() {
-    m_board.setSideToMove(1);
+CGame::CGame(const std::string &fen) {
+    if (fen.empty()) {
+        m_board.setSideToMove(1);
+    } else if (!m_board.loadFEN(fen)) {
+        throw std::runtime_error("Invalid FEN");
+    }
     m_userTurn = m_board.getSideToMove();
 
     std::cout << "Which color do you want to play as (B/W): ";

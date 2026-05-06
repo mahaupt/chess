@@ -8,6 +8,38 @@
 
 #include "movingPrefab.hpp"
 #include "enpassantflag.hpp"
+#include <cstdlib>
+
+
+namespace {
+int sign(int value) {
+    if (value > 0) {
+        return 1;
+    }
+    if (value < 0) {
+        return -1;
+    }
+    return 0;
+}
+
+
+bool hasBlockedPath(Point &from, Point &to, CBoard &board) {
+    int stepX = sign(to.getX() - from.getX());
+    int stepY = sign(to.getY() - from.getY());
+    int x = from.getX() + stepX;
+    int y = from.getY() + stepY;
+    
+    while (x != to.getX() || y != to.getY()) {
+        if (board.getFigure(x, y) != 0) {
+            return true;
+        }
+        x += stepX;
+        y += stepY;
+    }
+    
+    return false;
+}
+}
 
 
 
@@ -51,6 +83,12 @@ void MovingPrefab::getMoves(Point & point, CBoard & board, std::vector< Move > &
         
         
         if ((requireXPos && point.getX() != reqX) || (requireYPos && point.getY() != reqY)) {
+            break;
+        }
+        
+        bool isJumpingMove = !continuous && allowBeat;
+        bool isLongMove = std::abs(dx) > 1 || std::abs(dy) > 1;
+        if (!isJumpingMove && isLongMove && hasBlockedPath(point, pt, board)) {
             break;
         }
         
@@ -160,6 +198,5 @@ void MovingPrefab::setEnpassantMove(int _dx, int _dy) {
     enpassantDx = _dx;
     enpassantDy = _dy;
 }
-
 
 
