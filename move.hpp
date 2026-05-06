@@ -43,6 +43,7 @@ public:
     
     void setEnpassantFlag(Point & pt) { flagEnpassant = true; enpassantPoint = pt; }
     void setHitEnpassant() { hitEnpassant = true; }
+    bool hitsEnpassant() const { return hitEnpassant; }
     
     void setMoveValues(int val1, int val2) { moveValue1 = val1; moveValue2 = val2; }
     int getMoveValue1() const { return moveValue1; }

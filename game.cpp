@@ -69,7 +69,7 @@ bool CGame::move() {
             //display possible movements for figure
             std::cout << "Possible target fields: ";
             std::vector< Move > moves = std::vector< Move >();
-            nfigure->getMoves(point1, m_board, moves, &eflag);
+            m_board.getLegalMoves(point1, m_userTurn, moves, &eflag);
             
             if (moves.size() <= 0) {
                 std::cout << "No Fields found!" << std::endl;
@@ -149,15 +149,15 @@ bool CGame::move() {
     m_userTurn = (m_userTurn==0)?1:0;
     
     //check if check mate or remis
-    bool checkorremis = cai.playerIsCheckmateOrRemis(m_board, m_userTurn);
-    bool check = cai.playerIsCheck(m_board, m_userTurn);
+    bool check = m_board.isInCheck(m_userTurn);
+    bool hasLegalMove = m_board.hasLegalMove(m_userTurn, &eflag);
     std::string playername = (m_userTurn==0) ? "Black" : "White";
-    if (check && !checkorremis) {
+    if (check && hasLegalMove) {
         std::cout << playername + " is checked" << std::endl;
-    } else if (checkorremis && !check) {
+    } else if (!hasLegalMove && !check) {
         std::cout << "Game is remis" << std::endl;
         return false;
-    } else if (checkorremis && check) {
+    } else if (!hasLegalMove && check) {
         std::cout << playername + " is checkmated" << std::endl;
         return false;
     }

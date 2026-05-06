@@ -1,4 +1,5 @@
 #include "board.hpp"
+#include "enpassantflag.hpp"
 #include <cstdlib>
 
 
@@ -48,6 +49,11 @@ int getPieceSquareBonus(const CFigure* figure, int x, int y) {
     }
     
     return 0;
+}
+
+
+bool isInsideBoard(int x, int y) {
+    return x >= 0 && x < 8 && y >= 0 && y < 8;
 }
 }
 
@@ -164,6 +170,184 @@ void CBoard::restoreCapturedFigure(CFigure* figure) {
             return;
         }
     }
+}
+
+
+bool CBoard::isInCheck(int color) {
+    Point kingPoint = Point(-1, -1);
+    
+    for (int x = 0; x < 8; x++) {
+        for (int y = 0; y < 8; y++) {
+            CFigure* figure = m_board[x][y];
+            if (figure != 0 && figure->getColor() == color && figure->getType() == FigureType::King) {
+                kingPoint = Point(x, y);
+                break;
+            }
+        }
+    }
+    
+    if (!kingPoint.isValid()) {
+        return true;
+    }
+    
+    int attackerColor = color == 0 ? 1 : 0;
+    int pawnDirection = attackerColor == 1 ? 1 : -1;
+    int pawnY = kingPoint.getY() - pawnDirection;
+    for (int dx = -1; dx <= 1; dx += 2) {
+        int pawnX = kingPoint.getX() + dx;
+        if (isInsideBoard(pawnX, pawnY)) {
+            CFigure* figure = m_board[pawnX][pawnY];
+            if (figure != 0 && figure->getColor() == attackerColor && figure->getType() == FigureType::Pawn) {
+                return true;
+            }
+        }
+    }
+    
+    const int knightMoves[8][2] = {
+        {2, 1}, {2, -1}, {-2, 1}, {-2, -1},
+        {1, 2}, {-1, 2}, {1, -2}, {-1, -2}
+    };
+    for (int i = 0; i < 8; i++) {
+        int x = kingPoint.getX() + knightMoves[i][0];
+        int y = kingPoint.getY() + knightMoves[i][1];
+        if (isInsideBoard(x, y)) {
+            CFigure* figure = m_board[x][y];
+            if (figure != 0 && figure->getColor() == attackerColor && figure->getType() == FigureType::Knight) {
+                return true;
+            }
+        }
+    }
+    
+    const int kingMoves[8][2] = {
+        {0, 1}, {0, -1}, {1, 1}, {-1, 1},
+        {1, -1}, {-1, -1}, {-1, 0}, {1, 0}
+    };
+    for (int i = 0; i < 8; i++) {
+        int x = kingPoint.getX() + kingMoves[i][0];
+        int y = kingPoint.getY() + kingMoves[i][1];
+        if (isInsideBoard(x, y)) {
+            CFigure* figure = m_board[x][y];
+            if (figure != 0 && figure->getColor() == attackerColor && figure->getType() == FigureType::King) {
+                return true;
+            }
+        }
+    }
+    
+    const int straightMoves[4][2] = {
+        {0, 1}, {0, -1}, {1, 0}, {-1, 0}
+    };
+    for (int i = 0; i < 4; i++) {
+        int x = kingPoint.getX() + straightMoves[i][0];
+        int y = kingPoint.getY() + straightMoves[i][1];
+        while (isInsideBoard(x, y)) {
+            CFigure* figure = m_board[x][y];
+            if (figure != 0) {
+                if (figure->getColor() == attackerColor
+                    && (figure->getType() == FigureType::Rook || figure->getType() == FigureType::Queen)) {
+                    return true;
+                }
+                break;
+            }
+            x += straightMoves[i][0];
+            y += straightMoves[i][1];
+        }
+    }
+    
+    const int diagonalMoves[4][2] = {
+        {1, 1}, {-1, 1}, {1, -1}, {-1, -1}
+    };
+    for (int i = 0; i < 4; i++) {
+        int x = kingPoint.getX() + diagonalMoves[i][0];
+        int y = kingPoint.getY() + diagonalMoves[i][1];
+        while (isInsideBoard(x, y)) {
+            CFigure* figure = m_board[x][y];
+            if (figure != 0) {
+                if (figure->getColor() == attackerColor
+                    && (figure->getType() == FigureType::Bishop || figure->getType() == FigureType::Queen)) {
+                    return true;
+                }
+                break;
+            }
+            x += diagonalMoves[i][0];
+            y += diagonalMoves[i][1];
+        }
+    }
+    
+    return false;
+}
+
+
+void CBoard::getLegalMoves(Point &point, int color, std::vector<Move> & moves, EnpassantFlag* eflag) {
+    CFigure* figure = getFigure(point);
+    if (figure == 0 || figure->getColor() != color) {
+        return;
+    }
+    
+    std::vector<Move> pseudoMoves = std::vector<Move>();
+    figure->getMoves(point, *this, pseudoMoves, eflag);
+    
+    for (int i = 0; i < pseudoMoves.size(); i++) {
+        Move move = pseudoMoves[i];
+        if (eflag != 0 && move.hitsEnpassant()) {
+            move.doMove(*this, *eflag);
+            if (!isInCheck(color)) {
+                moves.push_back(pseudoMoves[i]);
+            }
+            move.reverseMove(*this, *eflag);
+        } else {
+            move.doMove(*this);
+            if (!isInCheck(color)) {
+                moves.push_back(pseudoMoves[i]);
+            }
+            move.reverseMove(*this);
+        }
+    }
+}
+
+
+void CBoard::getLegalMoves(int color, std::vector<Move> & moves, EnpassantFlag* eflag) {
+    for (int x = 0; x < 8; x++) {
+        for (int y = 0; y < 8; y++) {
+            Point point = Point(x, y);
+            getLegalMoves(point, color, moves, eflag);
+        }
+    }
+}
+
+
+bool CBoard::hasLegalMove(int color, EnpassantFlag* eflag) {
+    for (int x = 0; x < 8; x++) {
+        for (int y = 0; y < 8; y++) {
+            Point point = Point(x, y);
+            CFigure* figure = getFigure(point);
+            if (figure == 0 || figure->getColor() != color) {
+                continue;
+            }
+            
+            std::vector<Move> pseudoMoves = std::vector<Move>();
+            figure->getMoves(point, *this, pseudoMoves, eflag);
+            
+            for (int i = 0; i < pseudoMoves.size(); i++) {
+                Move move = pseudoMoves[i];
+                bool legal = false;
+                if (eflag != 0 && move.hitsEnpassant()) {
+                    move.doMove(*this, *eflag);
+                    legal = !isInCheck(color);
+                    move.reverseMove(*this, *eflag);
+                } else {
+                    move.doMove(*this);
+                    legal = !isInCheck(color);
+                    move.reverseMove(*this);
+                }
+                
+                if (legal) {
+                    return true;
+                }
+            }
+        }
+    }
+    
+    return false;
 }
 
 

@@ -69,11 +69,12 @@ void Move::doMove(CBoard &board)  {
 void Move::doMove(CBoard &board, EnpassantFlag &eflag)  {
     doMove(board);
     
-    if (flagEnpassant) {
-        eflag.setEnpassantFlag(enpassantPoint, to, fromfig->getColor());
-    }
     if (hitEnpassant) {
         eflag.doMove(board);
+    } else if (flagEnpassant) {
+        eflag.setEnpassantFlag(enpassantPoint, to, fromfig->getColor());
+    } else {
+        eflag.resetFlag();
     }
 }
 

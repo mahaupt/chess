@@ -15,6 +15,7 @@
 
 
 typedef std::array<std::array<CFigure*, 8>, 8> chessboardmap;
+class EnpassantFlag;
 
 class CBoard 
 {
@@ -39,4 +40,8 @@ public:
     CFigure* getFigure(const Point &pt);
     
     int evaluateBoard(int color);
+    bool isInCheck(int color);
+    bool hasLegalMove(int color, EnpassantFlag* eflag = 0);
+    void getLegalMoves(int color, std::vector<Move> & moves, EnpassantFlag* eflag = 0);
+    void getLegalMoves(Point &point, int color, std::vector<Move> & moves, EnpassantFlag* eflag = 0);
 };

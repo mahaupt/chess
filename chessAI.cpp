@@ -22,9 +22,7 @@ int getCenterBonus(const Point &point) {
 }
 }
 
-
 ChessAI::ChessAI():startEbene(2), nodesEvaluated(0)  {};
-
 
 Move ChessAI::getNextMove(CBoard & board, int color) {
     startEbene = 5;
@@ -46,27 +44,12 @@ unsigned long long ChessAI::getNodesEvaluated() const {
 
 
 bool ChessAI::playerIsCheckmateOrRemis(CBoard & board, int player) {
-    Move move = Move();
-    nodesEvaluated = 0;
-    int value = doAllMoves(board, player, 2, move);
-    
-    if (value <= -700000) {
-        return true;
-    }
-    return false;
+    return !board.hasLegalMove(player);
 }
 
 
 bool ChessAI::playerIsCheck(CBoard & board, int player) {
-    int color = (player == 0)?1:0;
-    Move move = Move();
-    nodesEvaluated = 0;
-    int value = doAllMoves(board, color, 1, move);
-    
-    if (value >= 700000) {
-        return true;
-    }
-    return false;
+    return board.isInCheck(player);
 }
 
 
@@ -102,36 +85,20 @@ void ChessAI::sortMoves(CBoard & board, std::vector< Move > & moves) {
 int ChessAI::doAllMoves(CBoard & board, int color, int ebenen, Move & savemove, int alpha, int beta) {
     nodesEvaluated++;
     
-    //get all moves
-    std::vector< Move > moves = std::vector< Move >();
-    bool blackking = false;
-    bool whiteking = false;
-    for (int i=0; i<8; i++)
-    {
-        for (int j=0; j<8; j++)
-        {
-            CFigure * figure = board.getFigure(i, j);
-            if (figure != 0) {
-                if (figure->getColor() == color) {
-                    Point pt = Point(i, j);
-                    figure->getMoves(pt, board, moves);
-                }
-            }
-            
-            //check if figure is king
-            if (figure != 0 && (!blackking || !whiteking)) {
-                if (figure->getType() == FigureType::King) {
-                    if (figure->getColor() == 0) blackking = true;
-                    if (figure->getColor() == 1) whiteking = true;
-                }
-            }
-
-        }
+    if (ebenen == 0) {
+        return board.evaluateBoard(color);
     }
     
-    //abort if ebenen is zero, no moves, or kings are away
-    if (ebenen == 0 || moves.size() <= 0 || !(blackking && whiteking)) {
-        return board.evaluateBoard(color) + (int)moves.size();
+    //get all moves
+    std::vector< Move > moves = std::vector< Move >();
+    board.getLegalMoves(color, moves);
+    
+    //abort if no moves
+    if (moves.size() <= 0) {
+        if (board.isInCheck(color)) {
+            return -700000 - ebenen;
+        }
+        return 0;
     }
     
     //Vorsortierung
