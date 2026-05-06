@@ -26,6 +26,7 @@ protected:
     int m_color;
     int m_figureValue;
     FigureType m_type;
+    bool m_hasMoved = false;
     std::string m_sign;
     std::vector< MovingPrefab > m_movesList;
     
@@ -38,4 +39,6 @@ public:
     
     int getValue() const { return m_figureValue; }
     FigureType getType() const { return m_type; }
+    bool hasMoved() const { return m_hasMoved; }
+    void setHasMoved(bool hasMoved) { m_hasMoved = hasMoved; }
 };

@@ -14,6 +14,8 @@ private:
     
     CFigure * fromfig;
     CFigure * tofig;
+    bool fromfigHadMoved;
+    bool tofigHadMoved;
     
     
     bool isRochade;

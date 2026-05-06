@@ -40,6 +40,7 @@ public:
     
     int evaluateBoard(int color);
     bool isInCheck(int color);
+    bool isSquareAttacked(const Point &point, int attackerColor);
     bool hasLegalMove(int color, EnpassantFlag* eflag = 0);
     void getLegalMoves(int color, std::vector<Move> & moves, EnpassantFlag* eflag = 0);
     void getLegalMoves(Point &point, int color, std::vector<Move> & moves, EnpassantFlag* eflag = 0);

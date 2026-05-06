@@ -66,7 +66,22 @@ void MovingPrefab::getMoves(Point & point, CBoard & board, std::vector< Move > &
             Point rookpt = Point(rochadeRookX, point.getY());
             CFigure * rookfig = board.getFigure(rookpt);
             if (rookfig != 0) {
-                if (rookfig->getType() != FigureType::Rook) {
+                if (figure == 0
+                    || figure->hasMoved()
+                    || rookfig->hasMoved()
+                    || rookfig->getColor() != figure->getColor()
+                    || rookfig->getType() != FigureType::Rook) {
+                    break;
+                }
+                if (board.isInCheck(figure->getColor())) {
+                    break;
+                }
+                
+                int step = rochadeRookX > point.getX() ? 1 : -1;
+                Point throughPoint = Point(point.getX() + step, point.getY());
+                int attackerColor = figure->getColor() == 0 ? 1 : 0;
+                if (board.isSquareAttacked(throughPoint, attackerColor)
+                    || board.isSquareAttacked(pt, attackerColor)) {
                     break;
                 }
                 
@@ -145,7 +160,6 @@ void MovingPrefab::setEnpassantMove(int _dx, int _dy) {
     enpassantDx = _dx;
     enpassantDy = _dy;
 }
-
 
 
 

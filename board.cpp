@@ -191,11 +191,15 @@ bool CBoard::isInCheck(int color) {
         return true;
     }
     
-    int attackerColor = color == 0 ? 1 : 0;
+    return isSquareAttacked(kingPoint, color == 0 ? 1 : 0);
+}
+
+
+bool CBoard::isSquareAttacked(const Point &point, int attackerColor) {
     int pawnDirection = attackerColor == 1 ? 1 : -1;
-    int pawnY = kingPoint.getY() - pawnDirection;
+    int pawnY = point.getY() - pawnDirection;
     for (int dx = -1; dx <= 1; dx += 2) {
-        int pawnX = kingPoint.getX() + dx;
+        int pawnX = point.getX() + dx;
         if (isInsideBoard(pawnX, pawnY)) {
             CFigure* figure = m_board[pawnX][pawnY];
             if (figure != 0 && figure->getColor() == attackerColor && figure->getType() == FigureType::Pawn) {
@@ -209,8 +213,8 @@ bool CBoard::isInCheck(int color) {
         {1, 2}, {-1, 2}, {1, -2}, {-1, -2}
     };
     for (int i = 0; i < 8; i++) {
-        int x = kingPoint.getX() + knightMoves[i][0];
-        int y = kingPoint.getY() + knightMoves[i][1];
+        int x = point.getX() + knightMoves[i][0];
+        int y = point.getY() + knightMoves[i][1];
         if (isInsideBoard(x, y)) {
             CFigure* figure = m_board[x][y];
             if (figure != 0 && figure->getColor() == attackerColor && figure->getType() == FigureType::Knight) {
@@ -224,8 +228,8 @@ bool CBoard::isInCheck(int color) {
         {1, -1}, {-1, -1}, {-1, 0}, {1, 0}
     };
     for (int i = 0; i < 8; i++) {
-        int x = kingPoint.getX() + kingMoves[i][0];
-        int y = kingPoint.getY() + kingMoves[i][1];
+        int x = point.getX() + kingMoves[i][0];
+        int y = point.getY() + kingMoves[i][1];
         if (isInsideBoard(x, y)) {
             CFigure* figure = m_board[x][y];
             if (figure != 0 && figure->getColor() == attackerColor && figure->getType() == FigureType::King) {
@@ -238,8 +242,8 @@ bool CBoard::isInCheck(int color) {
         {0, 1}, {0, -1}, {1, 0}, {-1, 0}
     };
     for (int i = 0; i < 4; i++) {
-        int x = kingPoint.getX() + straightMoves[i][0];
-        int y = kingPoint.getY() + straightMoves[i][1];
+        int x = point.getX() + straightMoves[i][0];
+        int y = point.getY() + straightMoves[i][1];
         while (isInsideBoard(x, y)) {
             CFigure* figure = m_board[x][y];
             if (figure != 0) {
@@ -258,8 +262,8 @@ bool CBoard::isInCheck(int color) {
         {1, 1}, {-1, 1}, {1, -1}, {-1, -1}
     };
     for (int i = 0; i < 4; i++) {
-        int x = kingPoint.getX() + diagonalMoves[i][0];
-        int y = kingPoint.getY() + diagonalMoves[i][1];
+        int x = point.getX() + diagonalMoves[i][0];
+        int y = point.getY() + diagonalMoves[i][1];
         while (isInsideBoard(x, y)) {
             CFigure* figure = m_board[x][y];
             if (figure != 0) {
