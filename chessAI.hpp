@@ -23,11 +23,4 @@ public:
     Move getNextMove(CBoard & board, int color);
     int getSearchDepth() const;
     unsigned long long getNodesEvaluated() const;
-    bool playerIsCheckmateOrRemis(CBoard & board, int player);
-    bool playerIsCheck(CBoard & board, int player);
-    
-    struct sort_values {
-        int a = 0;
-        int b = 0;
-    };
 };

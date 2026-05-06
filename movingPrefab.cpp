@@ -65,19 +65,8 @@ void MovingPrefab::getMoves(Point & point, CBoard & board, std::vector< Move > &
         if (isRochade) {
             Point rookpt = Point(rochadeRookX, point.getY());
             CFigure * rookfig = board.getFigure(rookpt);
-            CFRook* cfrook = 0;
             if (rookfig != 0) {
-                bool isrook = true;
-                try {
-                    cfrook = dynamic_cast<CFRook*>(rookfig);
-                    if (isrook == 0) {
-                        isrook = false;
-                    }
-                } catch (...) {
-                    isrook = false;
-                }
-                
-                if (!isrook) {
+                if (rookfig->getType() != FigureType::Rook) {
                     break;
                 }
                 
@@ -156,7 +145,6 @@ void MovingPrefab::setEnpassantMove(int _dx, int _dy) {
     enpassantDx = _dx;
     enpassantDy = _dy;
 }
-
 
 
 

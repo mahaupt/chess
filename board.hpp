@@ -1,7 +1,6 @@
 #pragma once
 #include <array>
 #include <vector>
-#include <iostream>
 
 #include "point.hpp"
 #include "move.hpp"

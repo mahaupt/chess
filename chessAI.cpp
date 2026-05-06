@@ -43,17 +43,6 @@ unsigned long long ChessAI::getNodesEvaluated() const {
 }
 
 
-bool ChessAI::playerIsCheckmateOrRemis(CBoard & board, int player) {
-    return !board.hasLegalMove(player);
-}
-
-
-bool ChessAI::playerIsCheck(CBoard & board, int player) {
-    return board.isInCheck(player);
-}
-
-
-
 void ChessAI::sortMoves(CBoard & board, std::vector< Move > & moves) {
     for (int i=0; i < moves.size(); i++) {
         CFigure * tofig = board.getFigure(moves[i].getTo());

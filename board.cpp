@@ -1,6 +1,7 @@
 #include "board.hpp"
 #include "enpassantflag.hpp"
 #include <cstdlib>
+#include <iostream>
 
 
 namespace {
