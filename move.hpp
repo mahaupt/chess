@@ -45,6 +45,6 @@ public:
     void setHitEnpassant() { hitEnpassant = true; }
     
     void setMoveValues(int val1, int val2) { moveValue1 = val1; moveValue2 = val2; }
-    int getMoveValue1() { return moveValue1; }
-    int getMoveValue2() { return moveValue2; }
+    int getMoveValue1() const { return moveValue1; }
+    int getMoveValue2() const { return moveValue2; }
 };

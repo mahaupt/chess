@@ -125,9 +125,13 @@ bool CGame::move() {
         Move targetmove = cai.getNextMove(m_board, m_userTurn);
         auto end = std::chrono::steady_clock::now();
         std::chrono::duration<double> elapsed = end - start;
+        double nodesPerSecond = elapsed.count() > 0
+                                ? cai.getNodesEvaluated() / elapsed.count()
+                                : 0;
         std::cout << "Computer searched " << cai.getSearchDepth()
                   << " plies, evaluated " << cai.getNodesEvaluated()
-                  << " nodes in " << elapsed.count() << " seconds" << std::endl;
+                  << " nodes in " << elapsed.count()
+                  << " seconds (" << nodesPerSecond << " nodes/sec)" << std::endl;
 
         Move stdmove = Move();
         if (targetmove.compareTo(stdmove)) { std::cout << "Error: no move!" << std::endl;return false; }

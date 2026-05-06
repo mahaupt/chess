@@ -11,6 +11,16 @@
 #include "move.hpp"
 #include "point.hpp"
 #include <algorithm>
+#include <cstdlib>
+
+
+namespace {
+int getCenterBonus(const Point &point) {
+    int fileDistance = std::abs(point.getX() * 2 - 7);
+    int rankDistance = std::abs(point.getY() * 2 - 7);
+    return 14 - fileDistance - rankDistance;
+}
+}
 
 
 ChessAI::ChessAI():startEbene(2), nodesEvaluated(0)  {};
@@ -61,36 +71,30 @@ bool ChessAI::playerIsCheck(CBoard & board, int player) {
 
 
 
-std::vector<Move*> ChessAI::sortMoves(CBoard & board, std::vector< Move > & moves) {
-    std::vector<Move*> sortedMoves = std::vector<Move*>();
-    sortedMoves.reserve(moves.size());
-    
+void ChessAI::sortMoves(CBoard & board, std::vector< Move > & moves) {
     for (int i=0; i < moves.size(); i++) {
         CFigure * tofig = board.getFigure(moves[i].getTo());
         CFigure * fromfig = board.getFigure(moves[i].getFrom());
         
-        int tovalue = 0;
-        int fromvalue = 0;
+        int score = getCenterBonus(moves[i].getTo());
+        int tieBreaker = 0;
         if (tofig != 0) {
-            tovalue = tofig->getValue();
+            score += 100000 + tofig->getValue() * 100;
         }
         if (fromfig != 0) {
-            fromvalue = fromfig->getValue();
+            tieBreaker = -fromfig->getValue();
         }
         
-        moves[i].setMoveValues(tovalue, tovalue-fromvalue);
-        sortedMoves.push_back(&moves[i]);
+        moves[i].setMoveValues(score, tieBreaker);
     }
 
-    std::sort(sortedMoves.begin(), sortedMoves.end(), [](Move* lhs, Move* rhs) {
-        if (lhs->getMoveValue1() != rhs->getMoveValue1()) {
-            return lhs->getMoveValue1() > rhs->getMoveValue1();
+    std::sort(moves.begin(), moves.end(), [](const Move &lhs, const Move &rhs) {
+        if (lhs.getMoveValue1() != rhs.getMoveValue1()) {
+            return lhs.getMoveValue1() > rhs.getMoveValue1();
         }
 
-        return lhs->getMoveValue2() > rhs->getMoveValue2();
+        return lhs.getMoveValue2() > rhs.getMoveValue2();
     });
-
-    return sortedMoves;
 }
 
 
@@ -131,13 +135,13 @@ int ChessAI::doAllMoves(CBoard & board, int color, int ebenen, Move & savemove, 
     }
     
     //Vorsortierung
-    std::vector<Move*> sortedMoves = sortMoves(board, moves);
+    sortMoves(board, moves);
     
     //do every move
     int bestValue = alpha;
     
-    for (int i=0; i < sortedMoves.size(); i++) {
-        Move & nextmove = *sortedMoves[i];
+    for (int i=0; i < moves.size(); i++) {
+        Move & nextmove = moves[i];
         nextmove.doMove(board);
         Move move = Move();
         int value = -doAllMoves(board, (color==0)?1:0 , ebenen -1, move, -beta, -bestValue);
