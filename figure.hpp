@@ -33,9 +33,9 @@ public:
     void getMoves(Point & point, CBoard & board, std::vector< Move > & moves, EnpassantFlag* eflag = 0) const;
     virtual ~CFigure() {}
     
-    std::string getFigureSign() { return m_sign; }
-    int getColor() { return m_color; }
+    std::string getFigureSign() const { return m_sign; }
+    int getColor() const { return m_color; }
     
-    int getValue() { return m_figureValue; }
-    FigureType getType() { return m_type; }
+    int getValue() const { return m_figureValue; }
+    FigureType getType() const { return m_type; }
 };

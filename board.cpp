@@ -1,6 +1,8 @@
 #include "board.hpp"
+#include <cstdlib>
 
 
+namespace {
 const char* resetColor = "\033[0m";
 const char* lightSquare = "\033[48;5;250m";
 const char* darkSquare = "\033[48;5;240m";
@@ -17,6 +19,36 @@ void printSquare(CFigure* figure, bool isLightSquare)
         std::cout << "   ";
     }
     std::cout << resetColor;
+}
+
+
+int getCenterBonus(int x, int y) {
+    int fileDistance = std::abs(x * 2 - 7);
+    int rankDistance = std::abs(y * 2 - 7);
+    return 14 - fileDistance - rankDistance;
+}
+
+
+int getPieceSquareBonus(const CFigure* figure, int x, int y) {
+    int forwardRank = figure->getColor() == 1 ? y : 7 - y;
+    
+    switch (figure->getType()) {
+        case FigureType::Pawn:
+            return forwardRank * 4 + getCenterBonus(x, y);
+        case FigureType::Knight:
+            return getCenterBonus(x, y) * 4;
+        case FigureType::Bishop:
+            return getCenterBonus(x, y) * 2;
+        case FigureType::Rook:
+            return forwardRank;
+        case FigureType::Queen:
+            return getCenterBonus(x, y);
+        case FigureType::King:
+            return 0;
+    }
+    
+    return 0;
+}
 }
 
 
@@ -141,22 +173,21 @@ int CBoard::evaluateBoard(int color) {
     int value = 0;
     
     //figure values
-    for (int i=0; i<8; i++)
+    for (int x=0; x<8; x++)
     {
-        for (int j=0; j<8; j++)
+        for (int y=0; y<8; y++)
         {
-            if (m_board[i][j] != 0) {
-                int figval = m_board[i][j]->getValue();
-                if (m_board[i][j]->getColor() == 0) {
-                    value += figval * 100;
-                    
-                    if (figval < 1000)
-                        value += j*figval;
+            CFigure* figure = m_board[x][y];
+            if (figure != 0) {
+                int figureValue = figure->getValue() * 100;
+                if (figure->getType() != FigureType::King) {
+                    figureValue += getPieceSquareBonus(figure, x, y);
+                }
+                
+                if (figure->getColor() == 0) {
+                    value += figureValue;
                 } else {
-                    value -= figval * 100;
-                    
-                    if (figval < 1000)
-                        value -= j*figval;
+                    value -= figureValue;
                 }
             }
         }
