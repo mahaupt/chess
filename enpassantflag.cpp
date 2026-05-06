@@ -10,33 +10,31 @@
 #include "figure.hpp"
 
 
-void EnpassantFlag::setEnpassantFlag(Point &_hitpoint, Point & _figurepoint) {
+void EnpassantFlag::setEnpassantFlag(Point &_hitpoint, Point & _figurepoint, int color) {
     hitpoint = _hitpoint;
     figurepoint = _figurepoint;
+    figureColor = color;
     enpassantFlag = true;
 }
 
 
-EnpassantFlag::~EnpassantFlag() {
-    if (figure != 0) {
-        delete figure;
-    }
+void EnpassantFlag::resetFlag() {
+    enpassantFlag = false;
+    figureColor = -1;
 }
 
-
 void EnpassantFlag::doMove(CBoard & board) {
-    if (figure != 0) {
-        delete figure;
-    }
-    
     figure = board.m_board[figurepoint.getX()][figurepoint.getY()];
+    board.storeCapturedFigure(figure);
     board.m_board[figurepoint.getX()][figurepoint.getY()] = 0;
     enpassantFlag = false;
 }
 
 
 void EnpassantFlag::reverseMove(CBoard &board) {
+    board.restoreCapturedFigure(figure);
     board.m_board[figurepoint.getX()][figurepoint.getY()] = figure;
+    figureColor = figure->getColor();
     figure = 0;
     enpassantFlag = true;
 }

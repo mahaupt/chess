@@ -109,6 +109,32 @@ CFigure* CBoard::getFigure(int x, int y) {
 }
 
 
+void CBoard::storeCapturedFigure(CFigure* figure) {
+    if (figure != 0) {
+        m_capturedFigures.push_back(figure);
+    }
+}
+
+
+void CBoard::restoreCapturedFigure(CFigure* figure) {
+    if (figure == 0 || m_capturedFigures.size() == 0) {
+        return;
+    }
+    
+    if (m_capturedFigures.back() == figure) {
+        m_capturedFigures.pop_back();
+        return;
+    }
+    
+    for (int i = 0; i < m_capturedFigures.size(); i++) {
+        if (m_capturedFigures[i] == figure) {
+            m_capturedFigures.erase(m_capturedFigures.begin() + i);
+            return;
+        }
+    }
+}
+
+
 
 
 int CBoard::evaluateBoard(int color) {
@@ -159,4 +185,9 @@ CBoard::~CBoard( void )
             }
 		}
 	}
+    
+    for (int i = 0; i < m_capturedFigures.size(); i++) {
+        delete m_capturedFigures[i];
+    }
+    m_capturedFigures.clear();
 }

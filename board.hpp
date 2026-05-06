@@ -1,6 +1,5 @@
 #pragma once
 #include <array>
-#include <map>
 #include <vector>
 #include <iostream>
 
@@ -24,6 +23,10 @@ class CBoard
     
 private:
     chessboardmap m_board;
+    std::vector<CFigure*> m_capturedFigures;
+    
+    void storeCapturedFigure(CFigure* figure);
+    void restoreCapturedFigure(CFigure* figure);
     
 protected:
     

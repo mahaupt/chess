@@ -36,8 +36,6 @@ const Point & Move::getTo() const {
 
 
 void Move::doMove(CBoard &board)  {
-    deleteFigs();
-    
     //rochade move
     if (isRochade) {
         fromfig = board.m_board[from.getX()][from.getY()];
@@ -59,6 +57,7 @@ void Move::doMove(CBoard &board)  {
     
         fromfig = board.m_board[from.getX()][from.getY()];
         tofig = board.m_board[to.getX()][to.getY()];
+        board.storeCapturedFigure(tofig);
     
         board.m_board[from.getX()][from.getY()] = 0;
         board.m_board[to.getX()][to.getY()] = fromfig;
@@ -71,7 +70,7 @@ void Move::doMove(CBoard &board, EnpassantFlag &eflag)  {
     doMove(board);
     
     if (flagEnpassant) {
-        eflag.setEnpassantFlag(enpassantPoint, to);
+        eflag.setEnpassantFlag(enpassantPoint, to, fromfig->getColor());
     }
     if (hitEnpassant) {
         eflag.doMove(board);
@@ -106,6 +105,7 @@ void Move::reverseMove(CBoard &board) {
     
     //other move
     else {
+        board.restoreCapturedFigure(tofig);
         board.m_board[from.getX()][from.getY()] = fromfig;
         board.m_board[to.getX()][to.getY()] = tofig;
     }
@@ -115,15 +115,6 @@ void Move::reverseMove(CBoard &board) {
 }
 
 
-void Move::deleteFigs() {
-    /*if (fromfig != 0) {
-        delete fromfig;
-    }*/
-    if (tofig != 0 && !isRochade) {
-        delete tofig;
-    }
-}
-
 bool Move::compareTo (Move &move) {
     if (from.getX() == move.getFrom().getX() && from.getY() == move.getFrom().getY()) {
         if (to.getX() == move.getTo().getX() && to.getY() == move.getTo().getY()) {
@@ -131,8 +122,4 @@ bool Move::compareTo (Move &move) {
         }
     }
     return false;
-}
-
-Move::~Move() {
-    deleteFigs();
 }

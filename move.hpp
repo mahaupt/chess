@@ -15,8 +15,6 @@ private:
     CFigure * fromfig;
     CFigure * tofig;
     
-    void deleteFigs();
-    
     
     bool isRochade;
     int rochadeX;
@@ -32,7 +30,6 @@ private:
 public:
     Move(Point from, Point to, int _rochadeX = -1);
     Move();
-    ~Move();
     const Point & getFrom() const;
     const Point & getTo() const;
     

@@ -18,16 +18,17 @@ class EnpassantFlag {
 private:
     Point hitpoint;
     Point figurepoint;
-    CFigure * figure;
+    CFigure * figure = 0;
+    int figureColor = -1;
     bool enpassantFlag = false;
     
 public:
-    void setEnpassantFlag(Point &hitpoint, Point & figurepoint);
+    void setEnpassantFlag(Point &hitpoint, Point & figurepoint, int color);
     void doMove(CBoard & board);
     void reverseMove(CBoard & board);
     bool getFlag() { return enpassantFlag; }
-    void resetFlag() { enpassantFlag = false; }
-    ~EnpassantFlag();
+    void resetFlag();
+    int getFigureColor() { return figureColor; }
     
     const Point & getHitPoint() const { return hitpoint; }
 };

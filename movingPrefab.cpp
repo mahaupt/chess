@@ -131,7 +131,9 @@ void MovingPrefab::getMoves(Point & point, CBoard & board, std::vector< Move > &
         
             //enpassant
             if (eflag != 0 && enableEnpassantHitting && endfig == 0) {
-                if (eflag->getFlag() && eflag->getHitPoint().compateTo(pt)) {
+                if (eflag->getFlag()
+                    && eflag->getFigureColor() != figure->getColor()
+                    && eflag->getHitPoint().compateTo(pt)) {
                     Move mv = Move(point, pt, rochadeRookX);
                     mv.setHitEnpassant();
                     moves.push_back(mv);
@@ -154,7 +156,6 @@ void MovingPrefab::setEnpassantMove(int _dx, int _dy) {
     enpassantDx = _dx;
     enpassantDy = _dy;
 }
-
 
 
 
