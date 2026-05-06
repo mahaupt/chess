@@ -35,8 +35,10 @@ public:
         heapItems[0] = heapItems[lastIndex];
         heapItems[0]->setHeapIndex(0);
         heapItems.pop_back();
-        
-        sortDown(*heapItems[0]);
+
+        if (heapItems.size() > 0) {
+            sortDown(*heapItems[0]);
+        }
         
         return *firstItem;
     }

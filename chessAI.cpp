@@ -65,7 +65,7 @@ void ChessAI::sortMoves(CBoard & board, std::vector< Move > & input, Heap < Move
     
     for (int i=0; i < input.size(); i++) {
         CFigure * tofig = board.getFigure(input[i].getTo());
-        CFigure * fromfig = board.getFigure(input[i].getTo());
+        CFigure * fromfig = board.getFigure(input[i].getFrom());
         
         int tovalue = 0;
         int fromvalue = 0;
