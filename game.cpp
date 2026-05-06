@@ -7,6 +7,7 @@
 //
 
 #include "game.hpp"
+#include <chrono>
 
 
 CGame::CGame() {
@@ -118,7 +119,12 @@ bool CGame::move() {
     //computers turn
     else {
         std::cout << "Calculating..." << std::endl;
+        auto start = std::chrono::steady_clock::now();
         Move targetmove = cai.getNextMove(m_board, m_userTurn);
+        auto end = std::chrono::steady_clock::now();
+        std::chrono::duration<double> elapsed = end - start;
+        std::cout << "Computer searched " << cai.getSearchDepth()
+                  << " plies in " << elapsed.count() << " seconds" << std::endl;
 
         Move stdmove = Move();
         if (targetmove.compareTo(stdmove)) { std::cout << "Error: no move!" << std::endl;return false; }

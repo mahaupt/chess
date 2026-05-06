@@ -21,6 +21,7 @@ private:
 public:
     ChessAI();
     Move getNextMove(CBoard & board, int color);
+    int getSearchDepth() const;
     bool playerIsCheckmateOrRemis(CBoard & board, int player);
     bool playerIsCheck(CBoard & board, int player);
     

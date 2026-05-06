@@ -23,6 +23,10 @@ Move ChessAI::getNextMove(CBoard & board, int color) {
 }
 
 
+int ChessAI::getSearchDepth() const {
+    return startEbene;
+}
+
 
 bool ChessAI::playerIsCheckmateOrRemis(CBoard & board, int player) {
     Move move = Move();
