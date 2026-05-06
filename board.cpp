@@ -53,21 +53,29 @@ CBoard::CBoard( void )
 
 
 void CBoard::printBoard() {
-    std::cout << "    A B C D E F G H " << std::endl << std::endl;
-    
-    for (int i=0; i<8; i++)
+    const std::string files = "A   B   C   D   E   F   G   H";
+    const std::string border = "  +---+---+---+---+---+---+---+---+";
+
+    std::cout << std::endl;
+    std::cout << "    " << files << std::endl;
+    std::cout << border << std::endl;
+
+    for (int rank = 7; rank >= 0; rank--)
     {
-        std::cout << std::to_string(i+1) << "   ";
-        for (int j=0; j<8; j++)
+        std::cout << rank + 1 << " |";
+        for (int file = 0; file < 8; file++)
         {
-            if (m_board[j][i] != 0) {
-                std::cout << m_board[j][i]->getFigureSign() << " ";
+            if (m_board[file][rank] != 0) {
+                std::cout << " " << m_board[file][rank]->getFigureSign() << " |";
             } else {
-                std::cout << "- ";
+                std::cout << "   |";
             }
         }
-        std::cout << std::endl;
+        std::cout << " " << rank + 1 << std::endl;
+        std::cout << border << std::endl;
     }
+
+    std::cout << "    " << files << std::endl;
     std::cout << std::endl;
 }
 
