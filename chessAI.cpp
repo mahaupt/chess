@@ -36,6 +36,13 @@ struct RootSearchResult {
     bool completed = false;
     int moveIndex = 0;
 };
+
+bool isSameMove(const Move &left, const Move &right) {
+    return left.getFrom().getX() == right.getFrom().getX()
+        && left.getFrom().getY() == right.getFrom().getY()
+        && left.getTo().getX() == right.getTo().getX()
+        && left.getTo().getY() == right.getTo().getY();
+}
 }
 
 ChessAI::ChessAI():startEbene(1), completedDepth(0), nodesEvaluated(0), timeBudgetSeconds(3.0)  {};
@@ -135,6 +142,12 @@ Move ChessAI::getNextMove(CBoard & board, int color) {
         
         bestMove = depthBestMove;
         completedDepth = depth;
+        for (int i = 0; i < rootMoves.size(); i++) {
+            if (isSameMove(rootMoves[i], bestMove)) {
+                std::rotate(rootMoves.begin(), rootMoves.begin() + i, rootMoves.begin() + i + 1);
+                break;
+            }
+        }
         
         if (std::chrono::steady_clock::now() >= searchDeadline) {
             break;
