@@ -16,12 +16,14 @@ class CBoard;
 class ChessAI {
 private:
     int startEbene;
+    unsigned long long nodesEvaluated;
     int doAllMoves(CBoard & board, int color, int ebenen, Move & savemove, int alpha=-99999999, int beta=99999999);
     void sortMoves(CBoard & board, std::vector< Move > & input, Heap < Move > & output);
 public:
     ChessAI();
     Move getNextMove(CBoard & board, int color);
     int getSearchDepth() const;
+    unsigned long long getNodesEvaluated() const;
     bool playerIsCheckmateOrRemis(CBoard & board, int player);
     bool playerIsCheck(CBoard & board, int player);
     

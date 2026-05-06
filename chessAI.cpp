@@ -12,11 +12,12 @@
 #include "point.hpp"
 
 
-ChessAI::ChessAI():startEbene(2)  {};
+ChessAI::ChessAI():startEbene(2), nodesEvaluated(0)  {};
 
 
 Move ChessAI::getNextMove(CBoard & board, int color) {
     startEbene = 5;
+    nodesEvaluated = 0;
     Move move = Move();
     doAllMoves(board, color, startEbene, move);
     return move;
@@ -28,8 +29,14 @@ int ChessAI::getSearchDepth() const {
 }
 
 
+unsigned long long ChessAI::getNodesEvaluated() const {
+    return nodesEvaluated;
+}
+
+
 bool ChessAI::playerIsCheckmateOrRemis(CBoard & board, int player) {
     Move move = Move();
+    nodesEvaluated = 0;
     int value = doAllMoves(board, player, 2, move);
     
     if (value <= -700000) {
@@ -42,6 +49,7 @@ bool ChessAI::playerIsCheckmateOrRemis(CBoard & board, int player) {
 bool ChessAI::playerIsCheck(CBoard & board, int player) {
     int color = (player == 0)?1:0;
     Move move = Move();
+    nodesEvaluated = 0;
     int value = doAllMoves(board, color, 1, move);
     
     if (value >= 700000) {
@@ -76,6 +84,7 @@ void ChessAI::sortMoves(CBoard & board, std::vector< Move > & input, Heap < Move
 
 
 int ChessAI::doAllMoves(CBoard & board, int color, int ebenen, Move & savemove, int alpha, int beta) {
+    nodesEvaluated++;
     
     //get all moves
     std::vector< Move > moves = std::vector< Move >();
