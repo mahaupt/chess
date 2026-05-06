@@ -11,6 +11,8 @@
 
 
 CGame::CGame() {
+    m_userTurn = 1;
+
     std::cout << "Which color do you want to play as (B/W): ";
     
     std::string inp_color;
@@ -22,7 +24,7 @@ CGame::CGame() {
     }
     
     //print board for the first time
-    m_board.printBoard();
+    m_board.printBoard(m_userColor == 0);
 }
 
 
@@ -136,7 +138,7 @@ bool CGame::move() {
     
     
     //print board after user turn
-    m_board.printBoard();
+    m_board.printBoard(m_userColor == 0);
     
     //other users turn
     m_userTurn = (m_userTurn==0)?1:0;

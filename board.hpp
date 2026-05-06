@@ -1,4 +1,5 @@
 #pragma once
+#include <array>
 #include <map>
 #include <vector>
 #include <iostream>
@@ -14,7 +15,7 @@
 #include "figures/rook.hpp"
 
 
-typedef std::map<int,  std::map< int, CFigure* > > chessboardmap;
+typedef std::array<std::array<CFigure*, 8>, 8> chessboardmap;
 
 class CBoard 
 {
@@ -30,7 +31,7 @@ public:
     CBoard( void );
     ~CBoard();
     
-    void printBoard();
+    void printBoard(bool flipped = false);
     CFigure* getFigure(int x, int y);
     CFigure* getFigure(const Point &pt);
     
