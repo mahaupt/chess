@@ -11,7 +11,8 @@
 
 
 CGame::CGame() {
-    m_userTurn = 1;
+    m_board.setSideToMove(1);
+    m_userTurn = m_board.getSideToMove();
 
     std::cout << "Which color do you want to play as (B/W): ";
     
@@ -30,6 +31,8 @@ CGame::CGame() {
 
 
 bool CGame::move() {
+    m_userTurn = m_board.getSideToMove();
+    
     //display turn color
     if (m_userTurn == 0) {
         std::cout << "Black players turn" << std::endl;
@@ -147,7 +150,8 @@ bool CGame::move() {
     m_board.printBoard(m_userColor == 0);
     
     //other users turn
-    m_userTurn = (m_userTurn==0)?1:0;
+    m_board.switchSideToMove();
+    m_userTurn = m_board.getSideToMove();
     
     //check if check mate or remis
     bool check = m_board.isInCheck(m_userTurn);

@@ -10,5 +10,6 @@ protected:
 public:
     CFQueen( int color );
     ~CFQueen() {}
+    CFigure* clone() const override { return new CFQueen(*this); }
 };
 

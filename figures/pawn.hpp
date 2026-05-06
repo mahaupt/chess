@@ -11,4 +11,5 @@ protected:
 public:
     CFPawn( int color );
     ~CFPawn() {}
+    CFigure* clone() const override { return new CFPawn(*this); }
 };

@@ -11,4 +11,5 @@ protected:
 public:
     CFBishop( int color );
     ~CFBishop() {}
+    CFigure* clone() const override { return new CFBishop(*this); }
 };

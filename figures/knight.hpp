@@ -9,4 +9,5 @@ protected:
 public:
     CFKnight( int color );
     ~CFKnight() {}
+    CFigure* clone() const override { return new CFKnight(*this); }
 };

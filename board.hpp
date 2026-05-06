@@ -24,17 +24,25 @@ class CBoard
 private:
     chessboardmap m_board;
     std::vector<CFigure*> m_capturedFigures;
+    int m_sideToMove;
     
     void storeCapturedFigure(CFigure* figure);
     void restoreCapturedFigure(CFigure* figure);
+    void clearBoard();
+    void copyFrom(const CBoard & board);
     
 protected:
     
 public:
     CBoard( void );
+    CBoard(const CBoard & board);
+    CBoard & operator=(const CBoard & board);
     ~CBoard();
     
     void printBoard(bool flipped = false);
+    int getSideToMove() const;
+    void setSideToMove(int color);
+    void switchSideToMove();
     CFigure* getFigure(int x, int y);
     CFigure* getFigure(const Point &pt);
     

@@ -33,6 +33,7 @@ protected:
 public:
     void getMoves(Point & point, CBoard & board, std::vector< Move > & moves, EnpassantFlag* eflag = 0) const;
     virtual ~CFigure() {}
+    virtual CFigure* clone() const = 0;
     
     std::string getFigureSign() const { return m_sign; }
     int getColor() const { return m_color; }

@@ -15,4 +15,5 @@ protected:
 public:
     CFRook( int color );
     ~CFRook() {}
+    CFigure* clone() const override { return new CFRook(*this); }
 };

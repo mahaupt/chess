@@ -13,4 +13,5 @@ protected:
 public:
     CFKing( int color );
     ~CFKing() {}
+    CFigure* clone() const override { return new CFKing(*this); }
 };

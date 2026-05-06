@@ -61,6 +61,8 @@ bool isInsideBoard(int x, int y) {
 
 CBoard::CBoard( void )
 {
+    m_sideToMove = 1;
+    
 	//clear board
 	for (int i=0; i<8; i++) 
 	{
@@ -108,6 +110,23 @@ CBoard::CBoard( void )
 }
 
 
+CBoard::CBoard(const CBoard & board)
+{
+    copyFrom(board);
+}
+
+
+CBoard & CBoard::operator=(const CBoard & board)
+{
+    if (this != &board) {
+        clearBoard();
+        copyFrom(board);
+    }
+    
+    return *this;
+}
+
+
 
 
 void CBoard::printBoard(bool flipped) {
@@ -135,6 +154,35 @@ void CBoard::printBoard(bool flipped) {
 
     std::cout << "    " << files << std::endl;
     std::cout << std::endl;
+}
+
+
+int CBoard::getSideToMove() const {
+    return m_sideToMove;
+}
+
+
+void CBoard::setSideToMove(int color) {
+    m_sideToMove = color;
+}
+
+
+void CBoard::switchSideToMove() {
+    m_sideToMove = m_sideToMove == 0 ? 1 : 0;
+}
+
+
+void CBoard::copyFrom(const CBoard & board) {
+    m_sideToMove = board.m_sideToMove;
+    
+    for (int x = 0; x < 8; x++)
+    {
+        for (int y = 0; y < 8; y++)
+        {
+            CFigure* figure = board.m_board[x][y];
+            m_board[x][y] = figure != 0 ? figure->clone() : 0;
+        }
+    }
 }
 
 
@@ -393,6 +441,12 @@ int CBoard::evaluateBoard(int color) {
 
 
 CBoard::~CBoard( void )
+{
+    clearBoard();
+}
+
+
+void CBoard::clearBoard()
 {
 	//erase functions board
 	for (int i=0; i<8; i++) 
